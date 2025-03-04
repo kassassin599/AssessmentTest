@@ -57,12 +57,15 @@ public class MoveTabs : MonoBehaviour
 
 
     public Animator canterButtonAnimator;
+    public Animator skillMenuAnimator;
 
     public void OnClickCenterButton()
     {
         if (centerButtonOpen)
         {
             canterButtonAnimator.Play("CenterButtonClose");
+            skillMenuAnimator.Play("SKillPanelClose");
+
 
             for (int i = 0; i < turnOffGameobjects.Length; i++)
             {
@@ -83,6 +86,7 @@ public class MoveTabs : MonoBehaviour
         else
         {
             canterButtonAnimator.Play("CenterButtonOpen");
+            skillMenuAnimator.Play("SKillPanelOpen");
 
             for (int i = 0; i < turnOffGameobjects.Length; i++)
             {
