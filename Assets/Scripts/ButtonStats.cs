@@ -91,7 +91,7 @@ public class ButtonStats : MonoBehaviour
             if (stopAngle < startAngle)
                 stopAngle += 360f;
 
-            finalScale = 0.75f;
+            finalScale = 1.75f;
 
             finalRadius = moveTabs.altRadius;
         }
@@ -207,6 +207,7 @@ public class ButtonStats : MonoBehaviour
             if (altMoving)
             {
                 transform.position = Vector3.Lerp(startPosition.position, stopPosition.position, t);
+                nextPosInCicle = currentPosInCicle;
             }
 
             if (t >= 1f)

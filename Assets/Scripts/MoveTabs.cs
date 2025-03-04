@@ -40,6 +40,11 @@ public class MoveTabs : MonoBehaviour
     {
         PlotPositionsInCircle();
 
+        for (int i = 0; i < altTargetPositions.Length; i++)
+        {
+            altTargetPositions[i].GetComponent<CheckPos>().id = i;
+        }
+
         for (int i = 0; i < buttons.Length; i++)
         {
             buttons[i].transform.position = targetpositions[i].position;
@@ -58,7 +63,7 @@ public class MoveTabs : MonoBehaviour
         if (centerButtonOpen)
         {
             canterButtonAnimator.Play("CenterButtonClose");
-            
+
             for (int i = 0; i < turnOffGameobjects.Length; i++)
             {
                 turnOffGameobjects[i].SetActive(false);
@@ -78,7 +83,7 @@ public class MoveTabs : MonoBehaviour
         else
         {
             canterButtonAnimator.Play("CenterButtonOpen");
-            
+
             for (int i = 0; i < turnOffGameobjects.Length; i++)
             {
                 turnOffGameobjects[i].SetActive(true);
@@ -127,8 +132,6 @@ public class MoveTabs : MonoBehaviour
     {
         for (int i = 0; i < altTargetPositions.Length; i++)
         {
-            altTargetPositions[i].GetComponent<CheckPos>().id = i;
-
             float angle = (i / (float)altTargetPositions.Length) * 2 * Mathf.PI;
 
             float x = transform.position.x + altRadius * Mathf.Cos(angle + addAngle);
