@@ -22,21 +22,22 @@ public class ButtonStats : MonoBehaviour
     public Transform stopPosition;
 
     private float startAngle, stopAngle;
-    private float elapsedTime = 0f; 
+    private float elapsedTime = 0f;
     public float duration = 3f;
 
-    public float initialScale = 1f;
-    public float finalScale = 1f;
+    public float initialScale;
+    public float finalScale;
+
+    [SerializeField] bool altMoving = false;
 
     private void OnEnable()
     {
         _button = GetComponent<Button>();
-        centerObject = moveTabs.transform;
+        centerObject = moveTabs.centerButton.transform;
     }
 
     private void Start()
     {
-        // Invoke("SetInitialScale",0.1f);
         SetInitialScale();
     }
 
@@ -56,6 +57,67 @@ public class ButtonStats : MonoBehaviour
         }
 
         initialScale = transform.localScale.x;
+    }
+
+    public void OnClickCenterButton()
+    {
+        altMoving = true;
+
+        if (moveTabs.centerButtonOpen)
+        {
+            startPosition = moveTabs.Targetpositions[currentPosInCicle];
+
+            stopPosition = moveTabs.AltTargetPositions[currentPosInCicle];
+        }
+        else
+        {
+            startPosition = moveTabs.AltTargetPositions[currentPosInCicle];
+
+            stopPosition = moveTabs.Targetpositions[currentPosInCicle];
+        }
+
+        startAngle = Mathf.Atan2(
+            startPosition.position.y - centerObject.position.y,
+            startPosition.position.x - centerObject.position.x
+        ) * Mathf.Rad2Deg;
+
+        stopAngle = Mathf.Atan2(
+            stopPosition.position.y - centerObject.position.y,
+            stopPosition.position.x - centerObject.position.x
+        ) * Mathf.Rad2Deg;
+
+        if (moveTabs.centerButtonOpen)
+        {
+            if (stopAngle < startAngle)
+                stopAngle += 360f;
+
+            finalScale = 0.75f;
+
+            finalRadius = moveTabs.altRadius;
+        }
+        else
+        {
+            if (stopAngle > startAngle)
+                stopAngle += 360f;
+
+            if (currentPosInCicle == 2)
+            {
+                finalScale = 1.25f;
+            }
+            else if (currentPosInCicle == 3 || currentPosInCicle == 1)
+            {
+                finalScale = 1f;
+            }
+            else if (currentPosInCicle == 4 || currentPosInCicle == 0)
+            {
+                finalScale = 0.75f;
+            }
+
+            finalRadius = Vector3.Distance(centerObject.position, startPosition.position);
+        }
+
+
+        canMove = true;
     }
 
     public void SetSteps(int stepsReq)
@@ -98,6 +160,8 @@ public class ButtonStats : MonoBehaviour
 
         CalculateScale();
 
+        radius = Vector3.Distance(centerObject.position, startPosition.position);
+
         canMove = true;
     }
 
@@ -117,6 +181,9 @@ public class ButtonStats : MonoBehaviour
         }
     }
 
+    [SerializeField] private float radius;
+    [SerializeField] private float finalRadius;
+
     public void Update()
     {
         if (canMove)
@@ -124,10 +191,11 @@ public class ButtonStats : MonoBehaviour
             elapsedTime += Time.deltaTime;
             float t = Mathf.Clamp01(elapsedTime / duration);
 
-            float currentAngle = Mathf.Lerp(startAngle, stopAngle, t);
+            float smoothT = Mathf.SmoothStep(0f, 1f, t);
+
+            float currentAngle = Mathf.Lerp(startAngle, stopAngle, smoothT);
             float radians = currentAngle * Mathf.Deg2Rad;
 
-            float radius = Vector3.Distance(centerObject.position, startPosition.position);
             float x = centerObject.position.x + radius * Mathf.Cos(radians);
             float y = centerObject.position.y + radius * Mathf.Sin(radians);
 
@@ -136,15 +204,27 @@ public class ButtonStats : MonoBehaviour
             float scaleValue = Mathf.Lerp(initialScale, finalScale, t);
             transform.localScale = new Vector3(scaleValue, scaleValue, 1);
 
+            if (altMoving)
+            {
+                transform.position = Vector3.Lerp(startPosition.position, stopPosition.position, t);
+            }
+
             if (t >= 1f)
             {
                 t = 0;
                 elapsedTime = 0;
                 canMove = false;
-                _button.interactable = true;
-                currentPosInCicle = nextPosInCicle;
+                _button.interactable = false;
+                if (moveTabs.centerButtonOpen)
+                {
+                    currentPosInCicle = nextPosInCicle;
+                    _button.interactable = true;
+                }
+
                 initialScale = finalScale;
+                radius = finalRadius;
                 transform.position = stopPosition.position;
+                altMoving = false;
             }
         }
     }

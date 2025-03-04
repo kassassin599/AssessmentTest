@@ -16,10 +16,24 @@ public class MoveTabs : MonoBehaviour
 
     private int mainPositionID = 2;
 
+    public Button centerButton;
+    [SerializeField] private GameObject[] turnOffGameobjects;
+
+    [SerializeField] private Transform[] altTargetPositions;
+    public float altRadius = 200f;
+
+    public bool centerButtonOpen = true;
+
     public Transform[] Targetpositions
     {
         get => targetpositions;
         set => targetpositions = value;
+    }
+
+    public Transform[] AltTargetPositions
+    {
+        get => altTargetPositions;
+        set => altTargetPositions = value;
     }
 
     private void Awake()
@@ -32,6 +46,55 @@ public class MoveTabs : MonoBehaviour
             buttons[i].GetComponent<ButtonStats>().currentPosInCicle = targetpositions[i].GetComponent<CheckPos>().id;
             buttons[i].GetComponent<ButtonStats>().skillID = targetpositions[i].GetComponent<CheckPos>().id;
         }
+
+        OnClickSkillButton(2);
+    }
+
+
+    public Animator canterButtonAnimator;
+
+    public void OnClickCenterButton()
+    {
+        if (centerButtonOpen)
+        {
+            canterButtonAnimator.Play("CenterButtonClose");
+            
+            for (int i = 0; i < turnOffGameobjects.Length; i++)
+            {
+                turnOffGameobjects[i].SetActive(false);
+            }
+
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                // buttons[i].transform.localScale = new Vector3(0.75f, 0.75f, 1f);
+                buttons[i].interactable = true;
+                buttons[i].GetComponent<ButtonStats>().OnClickCenterButton();
+            }
+
+            centerButton.transform.localScale = new Vector3(0.5f, 0.5f, 1f);
+
+            AltPlotPositionsInCircle();
+        }
+        else
+        {
+            canterButtonAnimator.Play("CenterButtonOpen");
+            
+            for (int i = 0; i < turnOffGameobjects.Length; i++)
+            {
+                turnOffGameobjects[i].SetActive(true);
+            }
+
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                // buttons[i].transform.localScale = new Vector3(1f, 1f, 1f);
+                buttons[i].interactable = false;
+                buttons[i].GetComponent<ButtonStats>().OnClickCenterButton();
+            }
+
+            centerButton.transform.localScale = new Vector3(1f, 1f, 1f);
+        }
+
+        centerButtonOpen = !centerButtonOpen;
     }
 
     private void OnClickSkillButton(int skillID)
@@ -40,7 +103,7 @@ public class MoveTabs : MonoBehaviour
         {
             skillPanels[i].SetActive(false);
         }
-        
+
         skillPanels[skillID].SetActive(true);
     }
 
@@ -60,6 +123,22 @@ public class MoveTabs : MonoBehaviour
         }
     }
 
+    private void AltPlotPositionsInCircle()
+    {
+        for (int i = 0; i < altTargetPositions.Length; i++)
+        {
+            altTargetPositions[i].GetComponent<CheckPos>().id = i;
+
+            float angle = (i / (float)altTargetPositions.Length) * 2 * Mathf.PI;
+
+            float x = transform.position.x + altRadius * Mathf.Cos(angle + addAngle);
+
+            float y = transform.position.y + altRadius * Mathf.Sin(angle + addAngle);
+
+            altTargetPositions[i].position = new Vector3(x, y);
+        }
+    }
+
     public void OnButtonClicked(ButtonStats buttonStats)
     {
         if (buttonStats.currentPosInCicle != mainPositionID)
@@ -71,7 +150,7 @@ public class MoveTabs : MonoBehaviour
                 buttons[i].GetComponent<ButtonStats>().SetSteps(stepsReq);
             }
         }
-        
+
         OnClickSkillButton(buttonStats.skillID);
     }
 }
