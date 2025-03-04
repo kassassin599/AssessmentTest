@@ -2,11 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class MoveTabs : MonoBehaviour
 {
     [SerializeField] private Transform[] targetpositions;
+    [SerializeField] private GameObject[] skillPanels;
     public Button[] buttons;
 
     public float radius = 200f;
@@ -20,7 +22,7 @@ public class MoveTabs : MonoBehaviour
         set => targetpositions = value;
     }
 
-    private void Start()
+    private void Awake()
     {
         PlotPositionsInCircle();
 
@@ -28,7 +30,18 @@ public class MoveTabs : MonoBehaviour
         {
             buttons[i].transform.position = targetpositions[i].position;
             buttons[i].GetComponent<ButtonStats>().currentPosInCicle = targetpositions[i].GetComponent<CheckPos>().id;
+            buttons[i].GetComponent<ButtonStats>().skillID = targetpositions[i].GetComponent<CheckPos>().id;
         }
+    }
+
+    private void OnClickSkillButton(int skillID)
+    {
+        for (int i = 0; i < skillPanels.Length; i++)
+        {
+            skillPanels[i].SetActive(false);
+        }
+        
+        skillPanels[skillID].SetActive(true);
     }
 
     private void PlotPositionsInCircle()
@@ -58,5 +71,7 @@ public class MoveTabs : MonoBehaviour
                 buttons[i].GetComponent<ButtonStats>().SetSteps(stepsReq);
             }
         }
+        
+        OnClickSkillButton(buttonStats.skillID);
     }
 }

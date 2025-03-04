@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class ButtonStats : MonoBehaviour
 {
+    public int skillID;
     public int currentPosInCicle = 0;
     public int nextPosInCicle;
     public bool canMove = false;
@@ -35,6 +36,12 @@ public class ButtonStats : MonoBehaviour
 
     private void Start()
     {
+        // Invoke("SetInitialScale",0.1f);
+        SetInitialScale();
+    }
+
+    private void SetInitialScale()
+    {
         if (currentPosInCicle == 2)
         {
             transform.localScale = new Vector3(1.25f, 1.25f, 1);
@@ -47,7 +54,7 @@ public class ButtonStats : MonoBehaviour
         {
             transform.localScale = new Vector3(0.75f, 0.75f, 1);
         }
-        
+
         initialScale = transform.localScale.x;
     }
 
